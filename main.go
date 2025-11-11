@@ -7,7 +7,7 @@ import (
 
 func main() {
 	bools := []bool{true, false, true, false, false, false, false, false}
-	fmt.Printf("Raw: %v \n\n", bools)
+	fmt.Printf("Input: %v \n\n", bools)
 	packedBools, err := packBoolArray(bools)
 
 	if err != nil {
@@ -16,6 +16,11 @@ func main() {
 		fmt.Println("Packed")
 		printByte(packedBools)
 	}
+
+	unpackedBools := unpackBoolArray(packedBools)
+
+	fmt.Println("Input:  ", bools)
+	fmt.Println("Result: ", unpackedBools)
 }
 
 func packBoolArray(unpackedBools []bool) (packedBools byte, err error) {
@@ -30,6 +35,14 @@ func packBoolArray(unpackedBools []bool) (packedBools byte, err error) {
 		}
 	}
 	return packedBools, nil
+}
+
+func unpackBoolArray(packedBools byte) (unpackedBools []bool) {
+	for x := range 8 {
+		mask := byte(1 << x)
+		unpackedBools = append(unpackedBools, packedBools&mask != 0)
+	}
+	return unpackedBools
 }
 
 func printByte(byteToPrint byte) {
