@@ -3,27 +3,27 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
+	"unsafe"
 )
 
 func main() {
-	bools := []bool{true, false, true, false, false, false, false, false}
-	fmt.Printf("Input: %v \n\n", bools)
+	bools := [8]bool{true, false, true, false, false, false, false, false}
 	packedBools, err := packBoolArray(bools)
 
 	if err != nil {
 		fmt.Println(err.Error())
-	} else {
-		fmt.Println("Packed")
-		printByte(packedBools)
+		os.Exit(1)
 	}
 
-	unpackedBools := unpackBoolArray(packedBools)
+	fmt.Printf("Unpacked \nSize: %d bytes \nValue: %v\n\n", unsafe.Sizeof(bools), bools)
+	fmt.Printf("Packed \nSize: %d bytes \nValue: %08b (%v)\n\n", unsafe.Sizeof(packedBools), packedBools, packedBools)
 
-	fmt.Println("Input:  ", bools)
-	fmt.Println("Result: ", unpackedBools)
+	unpackedBools := unpackBoolArray(packedBools)
+	fmt.Printf("Original value after unpack:\n%v\n", unpackedBools)
 }
 
-func packBoolArray(unpackedBools []bool) (packedBools byte, err error) {
+func packBoolArray(unpackedBools [8]bool) (packedBools byte, err error) {
 	if len(unpackedBools) > 8 {
 		return 0, errors.New("There is a max size of 8 booleans for simplicity")
 	}
@@ -37,10 +37,10 @@ func packBoolArray(unpackedBools []bool) (packedBools byte, err error) {
 	return packedBools, nil
 }
 
-func unpackBoolArray(packedBools byte) (unpackedBools []bool) {
+func unpackBoolArray(packedBools byte) (unpackedBools [8]bool) {
 	for x := range 8 {
 		mask := byte(1 << x)
-		unpackedBools = append(unpackedBools, packedBools&mask != 0)
+		unpackedBools[x] = packedBools&mask != 0
 	}
 	return unpackedBools
 }
